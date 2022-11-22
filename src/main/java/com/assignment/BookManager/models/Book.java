@@ -24,13 +24,13 @@ public class Book{
     private Integer publishyear;
 
     @Column(name = "db_update_date", nullable = false)
-    private Date dbupdatedate;
+    private LocalDate dbupdatedate;
 
     public Book() {
 
     }
 
-    public Book(Integer bookId,String bookName, String author, Integer publishyear, Date dbupdatedate) {
+    public Book(Integer bookId,String bookName, String author, Integer publishyear, LocalDate dbupdatedate) {
         this.bookId = bookId;
         this.bookName = bookName;
         this.author = author;
@@ -78,11 +78,11 @@ public class Book{
         this.publishyear = publishyear;
     }
 
-    public Date getDbupdatedate() {
+    public LocalDate getDbupdatedate() {
         return dbupdatedate;
     }
 
-    public void setDbupdatedate(Date dbupdatedate) {
+    public void setDbupdatedate(LocalDate dbupdatedate) {
         this.dbupdatedate = dbupdatedate;
     }
 

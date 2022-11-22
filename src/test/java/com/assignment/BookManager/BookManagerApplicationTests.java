@@ -2,72 +2,71 @@ package com.assignment.BookManager;
 
 import com.assignment.BookManager.models.Book;
 import com.assignment.BookManager.repositories.BookRepository;
-import org.assertj.core.api.AssertionsForInterfaceTypes;
+import com.assignment.BookManager.service.BookService;
 import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class BookManagerApplicationTests {
 
+    @MockBean
+    private BookRepository bookRepository;
+
     @Autowired
-    BookRepository bookRepository;
+    private BookService bookService;
+
+    Book book;
     @Test
-    @Order(1)
     public void testCreate() throws ParseException {
-        Book b = new Book();
-        String pattern = "yyyy-mm-dd";
-        SimpleDateFormat simpleDateFormat =  new SimpleDateFormat(pattern);
-        Date d = simpleDateFormat.parse("2022-06-19");
-        b.setBookId(14);
-        b.setBookName("A Tale of Two Cities");
-        b.setAuthor("Charles Darwin");
-        b.setPublishyear(2019);
-        b.setDbupdatedate(d);
-        bookRepository.save(b);
-        assertNotNull(bookRepository.findById(14).get());
-
+        book = new Book(24, "Wakanda Forever", "James", 2018, LocalDate.parse("2022-09-15"));
+        when(bookRepository.save(book)).thenReturn(book);
+        assertEquals(book,bookService.createBook(book));
     }
 
     @Test
-    @Order(2)
-    public void getAll() {
-        List<Book> list = bookRepository.findAll();
-        AssertionsForInterfaceTypes.assertThat(list).size().isGreaterThan(0);
-    }
-
-    @Test
-    @Order(3)
-    public void getById() {
-        Book b = bookRepository.findById(14).get();
-        assertEquals("A Tale of Two Cities", b.getBookName());
-    }
-
-    @Test
-    @Order(4)
-    public void update() {
-        Book b = bookRepository.findById(14).get();
-        b.setBookName("Oliver Twist");
-        bookRepository.save(b);
-        assertNotEquals("A Tale of Two Cities", bookRepository.findById(14).get().getBookName());
-    }
-
-    @Test
-    @Order(5)
     public void delete() {
-        bookRepository.deleteById(14);
-        AssertionsForInterfaceTypes.assertThat(bookRepository.existsById(14)).isFalse();
+        Integer bookId=24;
+        bookService.deleteBook(bookId);
+       verify(bookRepository,times(1)).deleteById(bookId);
     }
+
+    @Test
+    public void getBookById() {
+        Integer bookId = 10;
+        bookService.getBookbyId(bookId);
+        verify(bookRepository,times(1)).getReferenceById(10);
+    }
+
+    @Test
+    public void updateBook() {
+        Integer bookId = 10;
+        book = new Book(26, "Swami","Williams", 2022,LocalDate.parse("2022-11-22"));
+        when(bookRepository.save(book)).thenReturn(book);
+        assertEquals(book,bookService.updateBook(bookId, book));
+    }
+
+    @Test
+    public void getAllBooks() {
+        when(bookRepository.findAll()).thenReturn(Stream.of(new Book(26, "Swami","Williams", 2022,LocalDate.parse("2022-11-22")),
+        new Book(27, "Hales","Samson", 2022,LocalDate.parse("2022-11-22"))).collect(Collectors.toList()));
+        assertEquals(2,bookService.getBooks().size());
+    }
+
+
 
 }
